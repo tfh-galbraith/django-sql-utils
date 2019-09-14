@@ -20,7 +20,8 @@ class Child(models.Model):
 # With publisher, there are multiple depths of traversal
 class Author(models.Model):
     name = models.CharField(max_length=32)
-
+    class Meta:
+        ordering = ('name', )
 
 class Publisher(models.Model):
     name = models.CharField(max_length=32)

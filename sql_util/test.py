@@ -6,7 +6,7 @@ from django.test import TestCase
 from sql_util.tests.models import (Parent, Child, Author, Book, BookAuthor, BookEditor, Publisher, Catalog, Package,
                                    Purchase, CatalogInfo, Category, Collection, Item, ItemCollectionM2M, Bit, Dog, Cat,
                                    Owner, Product, Brand)
-from sql_util.utils import SubqueryMin, SubqueryMax, SubqueryCount, Exists, SubquerySum
+from sql_util.utils import SubqueryMin, SubqueryMax, SubqueryCount, Exists, SubquerySum, SubqueryAggregate
 
 
 class TestParentChild(TestCase):
@@ -216,6 +216,15 @@ class TestManyToMany(TestCase):
                                   5: 2,
                                   6: 1})
 
+    def test_array_aggregation(self):
+        from django.contrib.postgres.aggregates import ArrayAgg
+        agg = SubqueryAggregate('authors__name', aggregate=ArrayAgg)
+        annotation = {
+                'book_author_names': agg
+        }
+        q = Book.objects.annotate(**annotation)
+        self.assertTrue(q.count())
+        self.assertIsInstance(q[0].book_author_names, list)
 
 class TestForeignKey(TestCase):
     @classmethod
